@@ -17,6 +17,7 @@ app.MapPost("/work-items", (CreateWorkItemRequest request, HttpRequest http, Cre
         var item = useCase.Execute(request.Title, idempotencyKey);
         return Results.Created($"/work-items/{item.Id}", item);
     }
+    catch (InvalidOperationException ex) { return Results.Conflict(new { error = ex.Message }); }
     catch (ArgumentException ex) { return Results.BadRequest(new { error = ex.Message }); }
 });
 app.MapGet("/work-items/{id:guid}", (Guid id, IWorkItemRepository repository) =>

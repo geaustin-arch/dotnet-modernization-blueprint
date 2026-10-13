@@ -16,4 +16,14 @@ public sealed class WorkItemTests
         Assert.Equal(first.Id, retry.Id);
         Assert.Single(repository.PendingMessages());
     }
+
+    [Fact] public void SameIdempotencyKeyWithDifferentPayloadIsRejected()
+    {
+        var repository = new InMemoryWorkItemRepository();
+        var first = WorkItem.Create("First", "same-key");
+        repository.CreateOnce(first, OutboxMessage.WorkItemCreated(first));
+        var retry = WorkItem.Create("Different", "same-key");
+        Assert.Throws<InvalidOperationException>(() => repository.CreateOnce(retry, OutboxMessage.WorkItemCreated(retry)));
+        Assert.Single(repository.PendingMessages());
+    }
 }

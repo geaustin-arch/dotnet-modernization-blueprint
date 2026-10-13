@@ -13,7 +13,13 @@ public sealed class InMemoryWorkItemRepository : IWorkItemRepository
     {
         lock (_gate)
         {
-            if (_keys.TryGetValue(item.IdempotencyKey, out var existingId)) return _items[existingId];
+            if (_keys.TryGetValue(item.IdempotencyKey, out var existingId))
+            {
+                var existing = _items[existingId];
+                if (!StringComparer.Ordinal.Equals(existing.Title, item.Title))
+                    throw new InvalidOperationException("Idempotency key was already used for a different request.");
+                return existing;
+            }
             if (message.AggregateId != item.Id) throw new ArgumentException("Outbox event must reference the created work item.");
             _items.Add(item.Id, item);
             _keys.Add(item.IdempotencyKey, item.Id);
