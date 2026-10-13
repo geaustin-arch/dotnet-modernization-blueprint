@@ -17,7 +17,7 @@ flowchart LR
 - Minimal API endpoints with request validation and health checks.
 - Domain model and application service separated from transport concerns.
 - Idempotency key contract to make retries safe.
-- Outbox entity/interface to keep state change and event publication atomic.
+- Transactional outbox message written atomically with the work item in the in-memory adapter; a durable dispatcher/database adapter is the next extension.
 - Container build and local Postgres service for the next adapter increment.
 
 ## Run

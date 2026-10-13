@@ -9,8 +9,11 @@ public sealed class WorkItemTests
     [Fact] public void SameIdempotencyKeyReturnsOriginalItem()
     {
         var repository = new InMemoryWorkItemRepository();
-        var first = repository.CreateOnce(WorkItem.Create("First", "same-key"));
-        var retry = repository.CreateOnce(WorkItem.Create("First", "same-key"));
+        var firstItem = WorkItem.Create("First", "same-key");
+        var first = repository.CreateOnce(firstItem, OutboxMessage.WorkItemCreated(firstItem));
+        var retryItem = WorkItem.Create("First", "same-key");
+        var retry = repository.CreateOnce(retryItem, OutboxMessage.WorkItemCreated(retryItem));
         Assert.Equal(first.Id, retry.Id);
+        Assert.Single(repository.PendingMessages());
     }
 }

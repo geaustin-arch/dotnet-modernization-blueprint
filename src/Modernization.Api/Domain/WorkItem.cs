@@ -9,3 +9,9 @@ public sealed record WorkItem(Guid Id, string Title, DateTimeOffset CreatedAtUtc
         return new WorkItem(Guid.NewGuid(), title.Trim(), DateTimeOffset.UtcNow, key);
     }
 }
+
+public sealed record OutboxMessage(Guid EventId, Guid AggregateId, string EventType, string Payload, DateTimeOffset OccurredAtUtc)
+{
+    public static OutboxMessage WorkItemCreated(WorkItem item) =>
+        new(Guid.NewGuid(), item.Id, "WorkItemCreated", $"{item.Id}|{item.Title}", DateTimeOffset.UtcNow);
+}
